@@ -88,9 +88,9 @@ def make_predictions():
     df['Date'] = pd.to_datetime(df['Date'], format='mixed', dayfirst=True) 
     df = df.rename(columns={'Date': 'ds', 'gold': 'y'})
 
-    # Generate future dates for the next 30 trading days
+    # Generate future dates for the next 5 trading days
     last_date = df['ds'].max()
-    future_dates = pd.bdate_range(start=last_date + pd.Timedelta(days=1), periods=30)
+    future_dates = pd.bdate_range(start=last_date + pd.Timedelta(days=1), periods=5)
     
     # Remove USA holidays
     us_holidays = USFederalHolidayCalendar()
