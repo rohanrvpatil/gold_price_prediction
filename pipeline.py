@@ -74,9 +74,26 @@ def train_model():
 
     df = df.rename(columns={'Date': 'ds', 'gold': 'y'})
 
-    model = Prophet()
+    model = Prophet(
+        changepoint_prior_scale=0.05,
+        seasonality_prior_scale=10.0,
+        holidays_prior_scale=10.0,
+        seasonality_mode='multiplicative',
+        changepoint_range=0.8,
+        yearly_seasonality=True,
+        weekly_seasonality=True,
+        daily_seasonality=False,
+        growth='linear',
+        n_changepoints=25,
+        interval_width=0.95
+    )
+
     for parameter in PARAMETERS:
-        model.add_regressor(parameter)
+        model.add_regressor(parameter, mode='multiplicative')
+
+    model.add_country_holidays(country_name='US')
+    model.add_seasonality(name='monthly', period=30.5, fourier_order=5)
+    model.add_seasonality(name='quarterly', period=91.25, fourier_order=5)
 
     model.fit(df)
     joblib.dump(model, 'prophet_model.pkl')
@@ -88,9 +105,8 @@ def make_predictions():
     df['Date'] = pd.to_datetime(df['Date'], format='mixed', dayfirst=True) 
     df = df.rename(columns={'Date': 'ds', 'gold': 'y'})
 
-    # Generate future dates for the next 5 trading days
     last_date = df['ds'].max()
-    future_dates = pd.bdate_range(start=last_date + pd.Timedelta(days=1), periods=5)
+    future_dates = pd.bdate_range(start=last_date + pd.Timedelta(days=1), periods=30)
     
     # Remove USA holidays
     us_holidays = USFederalHolidayCalendar()
