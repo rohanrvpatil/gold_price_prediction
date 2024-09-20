@@ -4,6 +4,5 @@ matplotlib
 requests
 yfinance
 prophet
-hsfs
 joblib
 scikit-learn
