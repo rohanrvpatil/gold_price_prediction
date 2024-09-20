@@ -3,7 +3,6 @@ from datetime import datetime
 import pandas as pd
 import yfinance as yf
 from prophet import Prophet
-import hsfs
 import joblib
 from pandas.tseries.holiday import USFederalHolidayCalendar
 from sklearn.preprocessing import StandardScaler
@@ -15,9 +14,7 @@ start_date='2021-01-01'
 
 
 def fetch_new_data():
-
-    import requests
-
+    
     headers = {
         'accept': '*/*',
         'accept-language': 'en-US,en;q=0.9',
@@ -79,6 +76,8 @@ def fetch_new_data():
     scaler = StandardScaler()
     historical_prices[numeric_columns] = scaler.fit_transform(historical_prices[numeric_columns])
     
+    joblib.dump(scaler, 'scaler.pkl')
+
     historical_prices.to_csv('./datasets/historical_prices.csv', index=False)
    
 def add_features(df):
