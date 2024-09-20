@@ -1,10 +1,10 @@
 # Gold Price Prediction
 
-**Aim:** To predict the price of gold using historical data and other factors like fear and greed index
-**Model used:** Facebook Prophet
-**Pipeline running time:** runs daily at midnight UTC time
-**Cron job:** Github Actions
-**Regressors used:** Fear and Greed Index, Crude Oil Prices, USD Index, Platinum Prices
+**Aim:** To predict the price of gold using historical data and other factors like fear and greed index <br>
+**Model used:** Facebook Prophet <br>
+**Pipeline running time:** runs daily at midnight UTC time <br>
+**Cron job:** Github Actions <br>
+**Regressors used:** Fear and Greed Index, Crude Oil Prices, USD Index, Platinum Prices <br>
 
 
 ## Implementation steps:
@@ -27,8 +27,8 @@
 
 ## Data resources:
 
-Gold price : https://finance.yahoo.com/quote/GC%3DF?p=GC%3DF
-Platinum price : https://finance.yahoo.com/quote/PL%3DF?p=PL%3DF
-USD index : https://finance.yahoo.com/quote/DX-Y.NYB?p=DX-Y.NYB
-Crude oil price : https://finance.yahoo.com/quote/CL%3DF?p=CL%3DF
-Fear and greed index: https://edition.cnn.com/markets/fear-and-greed
+Gold price : https://finance.yahoo.com/quote/GC%3DF?p=GC%3DF <br>
+Platinum price : https://finance.yahoo.com/quote/PL%3DF?p=PL%3DF <br>
+USD index : https://finance.yahoo.com/quote/DX-Y.NYB?p=DX-Y.NYB <br>
+Crude oil price : https://finance.yahoo.com/quote/CL%3DF?p=CL%3DF <br>
+Fear and greed index: https://edition.cnn.com/markets/fear-and-greed <br>
