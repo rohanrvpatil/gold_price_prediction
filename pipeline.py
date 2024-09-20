@@ -6,13 +6,18 @@ from prophet import Prophet
 import hsfs
 import joblib
 from pandas.tseries.holiday import USFederalHolidayCalendar
-
+from sklearn.preprocessing import StandardScaler
+import json
 
 
 PARAMETERS = ['fear_and_greed', 'crude_oil', 'usd_index', 'platinum']
+start_date='2021-01-01'
 
 
 def fetch_new_data():
+
+    import requests
+
     headers = {
         'accept': '*/*',
         'accept-language': 'en-US,en;q=0.9',
@@ -30,9 +35,13 @@ def fetch_new_data():
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
     }
 
-    response = requests.get('https://production.dataviz.cnn.io/index/fearandgreed/graphdata/2021-01-01', headers=headers)
+
+    response = requests.get(f'https://production.dataviz.cnn.io/index/fearandgreed/graphdata/{start_date}', headers=headers)
     fear_and_greed_data = response.json()
-    
+    # Dump the JSON response to a file
+    with open('./datasets/fear_and_greed_data.json', 'w') as f:
+        json.dump(fear_and_greed_data, f, indent=4)
+
     fear_and_greed_list = []
 
     for entry in fear_and_greed_data['fear_and_greed_historical']['data']:
@@ -52,7 +61,7 @@ def fetch_new_data():
     historical_prices=df_fear_and_greed.copy()
 
     for ticker, column_name in tickers.items():
-        ticker_data = yf.download(ticker, start="2021-01-01")
+        ticker_data = yf.download(ticker, start=start_date)
         ticker_data.reset_index(inplace=True)
         ticker_data = ticker_data[['Date', 'Open']]
         ticker_data.columns = ['Date', column_name]
@@ -62,17 +71,40 @@ def fetch_new_data():
 
         historical_prices = pd.merge(historical_prices, ticker_data, on='Date', how='left')
     
-    historical_prices = historical_prices.iloc[:-1]  # Remove the last row
+
+    # Remove the last row
+    historical_prices = historical_prices.iloc[:-1]
+
+    numeric_columns = ['fear_and_greed', 'gold', 'crude_oil', 'platinum', 'usd_index']
+    scaler = StandardScaler()
+    historical_prices[numeric_columns] = scaler.fit_transform(historical_prices[numeric_columns])
+    
     historical_prices.to_csv('./datasets/historical_prices.csv', index=False)
    
-
+def add_features(df):
+    # Add lag features
+    df['lag_1'] = df['y'].shift(1)
+    df['lag_2'] = df['y'].shift(2)
+    df['lag_3'] = df['y'].shift(3)
+    
+    # Add rolling statistics
+    df['rolling_mean_7'] = df['y'].rolling(window=7).mean()
+    df['rolling_std_7'] = df['y'].rolling(window=7).std()
+    df['rolling_mean_30'] = df['y'].rolling(window=30).mean()
+    df['rolling_std_30'] = df['y'].rolling(window=30).std()
+    
+    # Drop rows with NaN values
+    df = df.dropna()
+    
+    return df
 
 
 def train_model():
     df = pd.read_csv('./datasets/historical_prices.csv')
-    df['Date'] = pd.to_datetime(df['Date'], format='mixed', dayfirst=True)  # Updated line
-
+    df['Date'] = pd.to_datetime(df['Date'], format='mixed', dayfirst=True)
     df = df.rename(columns={'Date': 'ds', 'gold': 'y'})
+
+    #df = add_features(df)
 
     model = Prophet(
         changepoint_prior_scale=0.05,
@@ -90,6 +122,15 @@ def train_model():
 
     for parameter in PARAMETERS:
         model.add_regressor(parameter, mode='multiplicative')
+
+    # model.add_regressor('lag_1')
+    # model.add_regressor('lag_2')
+    # model.add_regressor('lag_3')
+    # model.add_regressor('rolling_mean_7')
+    # model.add_regressor('rolling_std_7')
+    # model.add_regressor('rolling_mean_30')
+    # model.add_regressor('rolling_std_30')
+
 
     model.add_country_holidays(country_name='US')
     model.add_seasonality(name='monthly', period=30.5, fourier_order=5)

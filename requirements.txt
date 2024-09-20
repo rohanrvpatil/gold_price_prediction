@@ -6,3 +6,5 @@ yfinance
 prophet
 hsfs
 joblib
+scikit-learn
+json
