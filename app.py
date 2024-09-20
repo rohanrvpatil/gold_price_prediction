@@ -21,8 +21,7 @@ scaler = joblib.load('scaler.pkl')
 # Inverse transform the scaled values
 numeric_columns = ['fear_and_greed', 'gold', 'crude_oil', 'platinum', 'usd_index']
 df_historical[numeric_columns] = scaler.inverse_transform(df_historical[numeric_columns])
-df_predictions['yhat'] = scaler.inverse_transform(df_predictions[['yhat']])
-
+df_predictions['yhat'] = scaler.inverse_transform(df_predictions[['yhat']].values.reshape(-1, 1)).flatten()
 # Get the last 6 months of historical data
 last_date = df_historical['Date'].max()
 start_date = last_date - timedelta(days=180)
