@@ -89,17 +89,17 @@ def main():
     train_model()
     make_predictions()
 
-    connection = hsfs.connection()
-    fs = connection.get_feature_store(name='gold_price_prediction_featurestore')
-    #fg = fs.get_feature_group('default', version=1)
+    # connection = hsfs.connection()
+    # fs = connection.get_feature_store(name='gold_price_prediction_featurestore')
+    # #fg = fs.get_feature_group('default', version=1)
     
-    # Upload historical prices
-    df_historical = pd.read_csv('./datasets/historical_prices.csv')
-    fs.save(df_historical, "historical_prices", primary_key=["Date"], description="Historical prices data")
+    # # Upload historical prices
+    # df_historical = pd.read_csv('./datasets/historical_prices.csv')
+    # fs.save(df_historical, "historical_prices", primary_key=["Date"], description="Historical prices data")
 
-    # Upload predictions
-    df_predictions = pd.read_csv('./datasets/predictions.csv')
-    fs.save(df_predictions, "predictions", primary_key=["ds"], description="Predictions for the next 5 days")
+    # # Upload predictions
+    # df_predictions = pd.read_csv('./datasets/predictions.csv')
+    # fs.save(df_predictions, "predictions", primary_key=["ds"], description="Predictions for the next 5 days")
 
 if __name__ == "__main__":
     main()
