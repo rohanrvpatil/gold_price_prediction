@@ -5,6 +5,8 @@ import yfinance as yf
 from prophet import Prophet
 import hsfs
 import joblib
+from pandas.tseries.holiday import USFederalHolidayCalendar
+
 
 
 PARAMETERS = ['fear_and_greed', 'crude_oil', 'usd_index', 'platinum']
@@ -86,8 +88,32 @@ def make_predictions():
     df['Date'] = pd.to_datetime(df['Date'], format='mixed', dayfirst=True) 
     df = df.rename(columns={'Date': 'ds', 'gold': 'y'})
 
-    forecast = model.predict(df)
-    prediction = forecast[['ds', 'yhat']]
+    # Generate future dates for the next 30 trading days
+    last_date = df['ds'].max()
+    future_dates = pd.bdate_range(start=last_date + pd.Timedelta(days=1), periods=30)
+    
+    # Remove USA holidays
+    us_holidays = USFederalHolidayCalendar()
+    holidays = us_holidays.holidays(start=future_dates.min(), end=future_dates.max())
+    future_dates = future_dates[~future_dates.isin(holidays)]
+
+    future_df = pd.DataFrame({'ds': future_dates})
+
+    # Add other required columns with the last known values
+    for col in df.columns:
+        if col not in ['ds', 'y']:
+            future_df[col] = df[col].iloc[-1]
+
+    # Combine historical data with future dates
+    forecast_df = pd.concat([df, future_df], ignore_index=True)
+
+    # Make predictions
+    forecast = model.predict(forecast_df)
+    
+    # Select only the future predictions
+    prediction = forecast[forecast['ds'].isin(future_dates)][['ds', 'yhat']]
+    
+    # Export predictions to CSV
     prediction.to_csv('./datasets/predictions.csv', index=False)
 
 
