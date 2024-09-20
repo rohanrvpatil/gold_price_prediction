@@ -147,7 +147,7 @@ def make_predictions():
     df = df.rename(columns={'Date': 'ds', 'gold': 'y'})
 
     last_date = df['ds'].max()
-    future_dates = pd.bdate_range(start=last_date + pd.Timedelta(days=1), periods=30)
+    future_dates = pd.bdate_range(start=last_date + pd.Timedelta(days=1), periods=31)
     
     # Remove USA holidays
     us_holidays = USFederalHolidayCalendar()
