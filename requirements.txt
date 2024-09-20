@@ -1,0 +1,8 @@
+streamlit
+pandas
+matplotlib
+requests
+yfinance
+prophet
+hsfs
+joblib
