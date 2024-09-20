@@ -63,10 +63,13 @@ def fetch_new_data():
         ticker_data = ticker_data[['Date', 'Open']]
         ticker_data.columns = ['Date', column_name]
 
-        historical_prices['Date'] = pd.to_datetime(historical_prices['Date'])
+        # Convert 'Date' columns to datetime only once, outside the loop
+        if 'Date' not in historical_prices.columns or not pd.api.types.is_datetime64_any_dtype(historical_prices['Date']):
+            historical_prices['Date'] = pd.to_datetime(historical_prices['Date'])
         ticker_data['Date'] = pd.to_datetime(ticker_data['Date'])
 
-        historical_prices = pd.merge(historical_prices, ticker_data, on='Date', how='left')
+        # Use merge with copy=True to avoid SettingWithCopyWarning
+        historical_prices = pd.merge(historical_prices, ticker_data, on='Date', how='left', copy=True)
     
 
     # Remove the last row
