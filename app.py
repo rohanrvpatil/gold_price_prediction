@@ -39,7 +39,7 @@ start_date = last_date - timedelta(days=180)
 df_last_6_months = df_historical[df_historical['Date'] >= start_date]
 
 # Create the plot
-fig, ax = plt.subplots(figsize=(20, 10))  # Increased figure size
+fig, ax = plt.subplots(figsize=(12, 6))  # Increased figure size
 
 # Plot last 6 months of historical prices
 ax.plot(df_last_6_months['Date'], df_last_6_months['gold'], label='Historical Gold Price', linewidth=3)
