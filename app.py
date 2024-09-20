@@ -48,14 +48,11 @@ ax.plot(df_last_6_months['Date'], df_last_6_months['gold'], label='Historical Go
 ax.plot(df_predictions['ds'], df_predictions['yhat'], label='Predicted Gold Price', color='red', linewidth=3)
 
 # Customize the plot
-ax.set_xlabel('Date', fontsize=16)  # Increased font size
-ax.set_ylabel('Gold Price', fontsize=16)  # Increased font size
-ax.set_title('Last 6 Months of Historical Gold Prices and All Predictions', fontsize=20)  # Increased font size
-ax.legend(fontsize=14)  # Increased font size
+ax.set_xlabel('Date')
+ax.set_ylabel('Gold Price ($)')
+ax.set_title('Last 6 Months of Historical Gold Prices and All Predictions')
+ax.legend()
 ax.grid(True)
-
-# Increase font size for tick labels
-ax.tick_params(axis='both', which='major', labelsize=12)
 
 # Rotate x-axis labels for better readability
 plt.xticks(rotation=45)
