@@ -4,6 +4,7 @@ import pandas as pd
 import yfinance as yf
 from prophet import Prophet
 import hsfs
+import joblib
 
 
 PARAMETERS = ['fear_and_greed', 'crude_oil', 'usd_index', 'platinum']
@@ -53,8 +54,13 @@ def fetch_new_data():
         ticker_data.reset_index(inplace=True)
         ticker_data = ticker_data[['Date', 'Open']]
         ticker_data.columns = ['Date', column_name]
+
+        historical_prices['Date'] = pd.to_datetime(historical_prices['Date'])
+        ticker_data['Date'] = pd.to_datetime(ticker_data['Date'])
+
         historical_prices = pd.merge(historical_prices, ticker_data, on='Date', how='left')
     
+    historical_prices = historical_prices.iloc[:-1]  # Remove the last row
     historical_prices.to_csv('./datasets/historical_prices.csv', index=False)
    
 
@@ -62,7 +68,8 @@ def fetch_new_data():
 
 def train_model():
     df = pd.read_csv('./datasets/historical_prices.csv')
-    df['Date'] = pd.to_datetime(df['Date'], format='%d-%m-%Y')
+    df['Date'] = pd.to_datetime(df['Date'], format='mixed', dayfirst=True)  # Updated line
+
     df = df.rename(columns={'Date': 'ds', 'gold': 'y'})
 
     model = Prophet()
@@ -70,13 +77,13 @@ def train_model():
         model.add_regressor(parameter)
 
     model.fit(df)
-    model.save('prophet_model.pkl')
+    joblib.dump(model, 'prophet_model.pkl')
 
 
 def make_predictions():
-    model = Prophet.load('prophet_model.pkl')
+    model = joblib.load('prophet_model.pkl')
     df = pd.read_csv('./datasets/historical_prices.csv')
-    df['Date'] = pd.to_datetime(df['Date'], format='%d-%m-%Y')
+    df['Date'] = pd.to_datetime(df['Date'], format='mixed', dayfirst=True) 
     df = df.rename(columns={'Date': 'ds', 'gold': 'y'})
 
     forecast = model.predict(df)
